@@ -1,4 +1,4 @@
-package event_test
+﻿package event_test
 
 import (
 	"testing"
@@ -8,7 +8,7 @@ import (
 
 func TestNewEnvelopeAndValidation(t *testing.T) {
 	payload := []byte(`{"price": 100.50, "sku": "SKU-999"}`)
-	env := event.NewEnvelope("ztt", "tenant_101", "pos_01", "product", "SKU-999", "updated", payload)
+	env := event.NewEnvelope("ztt", "pos_01", "product", "SKU-999", "updated", payload)
 
 	if env.ID == "" {
 		t.Fatal("expected non-empty UUID for EventEnvelope.ID")
@@ -21,7 +21,7 @@ func TestNewEnvelopeAndValidation(t *testing.T) {
 		t.Fatalf("validation failed unexpectedly: %v", err)
 	}
 
-	expectedSubject := "ztt.tenant_101.pos_01.product.updated"
+	expectedSubject := "ztt.pos_01.product.updated"
 	if subject := env.Subject(); subject != expectedSubject {
 		t.Fatalf("expected subject '%s', got '%s'", expectedSubject, subject)
 	}
@@ -35,32 +35,27 @@ func TestEnvelopeValidationFailures(t *testing.T) {
 	}{
 		{
 			name:    "Missing AppID",
-			env:     event.EventEnvelope{TenantID: "t1", NodeID: "n1", Entity: "e1", EntityID: "id1", Action: "a1"},
+			env:     event.EventEnvelope{NodeID: "n1", Entity: "e1", EntityID: "id1", Action: "a1"},
 			wantErr: event.ErrMissingAppID,
 		},
 		{
-			name:    "Missing TenantID",
-			env:     event.EventEnvelope{AppID: "app1", NodeID: "n1", Entity: "e1", EntityID: "id1", Action: "a1"},
-			wantErr: event.ErrMissingTenantID,
-		},
-		{
 			name:    "Missing NodeID",
-			env:     event.EventEnvelope{AppID: "app1", TenantID: "t1", Entity: "e1", EntityID: "id1", Action: "a1"},
+			env:     event.EventEnvelope{AppID: "app1", Entity: "e1", EntityID: "id1", Action: "a1"},
 			wantErr: event.ErrMissingNodeID,
 		},
 		{
 			name:    "Missing Entity",
-			env:     event.EventEnvelope{AppID: "app1", TenantID: "t1", NodeID: "n1", EntityID: "id1", Action: "a1"},
+			env:     event.EventEnvelope{AppID: "app1", NodeID: "n1", EntityID: "id1", Action: "a1"},
 			wantErr: event.ErrMissingEntity,
 		},
 		{
 			name:    "Missing EntityID",
-			env:     event.EventEnvelope{AppID: "app1", TenantID: "t1", NodeID: "n1", Entity: "e1", Action: "a1"},
+			env:     event.EventEnvelope{AppID: "app1", NodeID: "n1", Entity: "e1", Action: "a1"},
 			wantErr: event.ErrMissingEntityID,
 		},
 		{
 			name:    "Missing Action",
-			env:     event.EventEnvelope{AppID: "app1", TenantID: "t1", NodeID: "n1", Entity: "e1", EntityID: "id1"},
+			env:     event.EventEnvelope{AppID: "app1", NodeID: "n1", Entity: "e1", EntityID: "id1"},
 			wantErr: event.ErrMissingAction,
 		},
 	}
@@ -78,7 +73,7 @@ func TestEnvelopeValidationFailures(t *testing.T) {
 func TestSerializerFidelity(t *testing.T) {
 	serializer := event.NewSerializer()
 	payload := []byte(`{"quantity": 42}`)
-	originalEnv := event.NewEnvelope("ztt", "tenant_101", "pos_01", "inventory", "INV-001", "adjusted", payload)
+	originalEnv := event.NewEnvelope("ztt", "pos_01", "inventory", "INV-001", "adjusted", payload)
 
 	data, err := serializer.Marshal(originalEnv)
 	if err != nil {

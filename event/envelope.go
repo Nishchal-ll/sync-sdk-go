@@ -1,4 +1,4 @@
-package event
+﻿package event
 
 import (
 	"encoding/json"
@@ -11,7 +11,6 @@ import (
 
 var (
 	ErrMissingAppID    = errors.New("event: missing app_id")
-	ErrMissingTenantID = errors.New("event: missing tenant_id")
 	ErrMissingNodeID   = errors.New("event: missing node_id")
 	ErrMissingEntity   = errors.New("event: missing entity")
 	ErrMissingEntityID = errors.New("event: missing entity_id")
@@ -22,8 +21,8 @@ var (
 type EventEnvelope struct {
 	ID            string           `json:"id"`                       // Unique Event UUID (used for Nats-Msg-Id dedup)
 	AppID         string           `json:"app_id"`                   // Application Namespace (e.g., "ztt", "pharmacy")
-	TenantID      string           `json:"tenant_id"`                // Tenant Scope (e.g., "tenant_101")
-	NodeID        string           `json:"node_id"`                  // Source Node ID (e.g., "pos_01", "cloud")
+	TenantID      string           `json:"tenant_id,omitempty"`      // Optional Tenant Scope
+	NodeID        string           `json:"node_id"`                  // Source Node ID (e.g., "01cc92a6-...", "cloud")
 	Entity        string           `json:"entity"`                   // Entity Type (e.g., "order", "product", "inventory")
 	EntityID      string           `json:"entity_id"`                // Primary Key of the entity
 	Action        string           `json:"action"`                   // Action performed (e.g., "created", "adjusted")
@@ -39,11 +38,10 @@ type EventEnvelope struct {
 }
 
 // NewEnvelope constructs a new EventEnvelope with a generated UUIDv4 and UTC timestamp.
-func NewEnvelope(appID, tenantID, nodeID, entity, entityID, action string, payload []byte) EventEnvelope {
+func NewEnvelope(appID, nodeID, entity, entityID, action string, payload []byte) EventEnvelope {
 	return EventEnvelope{
 		ID:        uuid.New().String(),
 		AppID:     appID,
-		TenantID:  tenantID,
 		NodeID:    nodeID,
 		Entity:    entity,
 		EntityID:  entityID,
@@ -58,9 +56,6 @@ func NewEnvelope(appID, tenantID, nodeID, entity, entityID, action string, paylo
 func (e EventEnvelope) Validate() error {
 	if e.AppID == "" {
 		return ErrMissingAppID
-	}
-	if e.TenantID == "" {
-		return ErrMissingTenantID
 	}
 	if e.NodeID == "" {
 		return ErrMissingNodeID
@@ -77,7 +72,7 @@ func (e EventEnvelope) Validate() error {
 	return nil
 }
 
-// Subject builds the canonical NATS subject for this event: <app>.<tenant>.<source>.<entity>.<action>
+// Subject builds the canonical NATS subject for this event: <app>.<source>.<entity>.<action>
 func (e EventEnvelope) Subject() string {
-	return fmt.Sprintf("%s.%s.%s.%s.%s", e.AppID, e.TenantID, e.NodeID, e.Entity, e.Action)
+	return fmt.Sprintf("%s.%s.%s.%s", e.AppID, e.NodeID, e.Entity, e.Action)
 }

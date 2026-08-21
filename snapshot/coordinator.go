@@ -1,4 +1,4 @@
-package snapshot
+﻿package snapshot
 
 import (
 	"context"
@@ -19,21 +19,19 @@ type RequestPayload struct {
 type Coordinator struct {
 	natsClient *natsTransport.Client
 	appID      string
-	tenantID   string
 }
 
 // NewCoordinator creates a new Snapshot Coordinator.
-func NewCoordinator(natsClient *natsTransport.Client, appID, tenantID string) *Coordinator {
+func NewCoordinator(natsClient *natsTransport.Client, appID string) *Coordinator {
 	return &Coordinator{
 		natsClient: natsClient,
 		appID:      appID,
-		tenantID:   tenantID,
 	}
 }
 
-// RequestSubject builds the NATS request subject: <app>.<tenant>.cloud.snapshot.request
+// RequestSubject builds the NATS request subject: <app>.cloud.snapshot.request
 func (c *Coordinator) RequestSubject() string {
-	return fmt.Sprintf("%s.%s.cloud.snapshot.request", c.appID, c.tenantID)
+	return fmt.Sprintf("%s.cloud.snapshot.request", c.appID)
 }
 
 // ListenForRequests starts a cloud-side responder listening for snapshot requests and serving SnapshotProvider dumps.

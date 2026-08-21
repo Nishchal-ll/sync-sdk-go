@@ -1,4 +1,4 @@
-package inbox_test
+﻿package inbox_test
 
 import (
 	"context"
@@ -53,7 +53,7 @@ func TestInboxProcessorAtomicExecution(t *testing.T) {
 	})
 
 	serializer := event.NewSerializer()
-	env := event.NewEnvelope("ztt", "tenant_101", "cloud_main", "product", "PROD-100", "updated", []byte(`{"name":"Coffee"}`))
+	env := event.NewEnvelope("ztt", "cloud_main", "product", "PROD-100", "updated", []byte(`{"name":"Coffee"}`))
 	data, _ := serializer.Marshal(env)
 
 	// First execution -> Handler runs, Inbox row saved
@@ -89,7 +89,7 @@ func TestInboxProcessorHandlerErrorRollback(t *testing.T) {
 	})
 
 	serializer := event.NewSerializer()
-	env := event.NewEnvelope("ztt", "tenant_101", "cloud_main", "product", "PROD-100", "updated", []byte(`{}`))
+	env := event.NewEnvelope("ztt", "cloud_main", "product", "PROD-100", "updated", []byte(`{}`))
 	data, _ := serializer.Marshal(env)
 
 	err := processor.ProcessMessage(ctx, data)
@@ -117,7 +117,7 @@ func TestInboxProcessorSelfConsumptionFilter(t *testing.T) {
 
 	serializer := event.NewSerializer()
 	// Envelope published by the SAME node (pos_01)
-	selfEnv := event.NewEnvelope("ztt", "tenant_101", clientNodeID, "sales", "SALE-999", "created", []byte(`{}`))
+	selfEnv := event.NewEnvelope("ztt", clientNodeID, "sales", "SALE-999", "created", []byte(`{}`))
 	data, _ := serializer.Marshal(selfEnv)
 
 	if err := processor.ProcessMessage(ctx, data); err != nil {

@@ -1,4 +1,4 @@
-package client
+﻿package client
 
 import (
 	"context"
@@ -36,11 +36,6 @@ func New(cfg Config) (*Client, error) {
 // AppID returns the configured application identifier.
 func (c *Client) AppID() string {
 	return c.cfg.AppID
-}
-
-// TenantID returns the configured tenant identifier.
-func (c *Client) TenantID() string {
-	return c.cfg.TenantID
 }
 
 // NodeID returns the configured node identifier.

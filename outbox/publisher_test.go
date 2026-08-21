@@ -1,4 +1,4 @@
-package outbox_test
+﻿package outbox_test
 
 import (
 	"context"
@@ -73,7 +73,7 @@ func (m *MockRepository) MarkFailed(ctx context.Context, id string, errStr strin
 
 func TestOutboxItemCreation(t *testing.T) {
 	payload := []byte(`{"order_id": "ORD-101"}`)
-	env := event.NewEnvelope("ztt", "tenant_101", "pos_01", "order", "ORD-101", "created", payload)
+	env := event.NewEnvelope("ztt", "pos_01", "order", "ORD-101", "created", payload)
 
 	item := outbox.NewOutboxItem(env)
 	if item.ID != env.ID {
@@ -88,7 +88,7 @@ func TestMockRepositoryStateTransitions(t *testing.T) {
 	repo := NewMockRepository()
 	ctx := context.Background()
 
-	env := event.NewEnvelope("ztt", "tenant_101", "pos_01", "order", "ORD-101", "created", []byte(`{}`))
+	env := event.NewEnvelope("ztt", "pos_01", "order", "ORD-101", "created", []byte(`{}`))
 	item := outbox.NewOutboxItem(env)
 
 	repo.Add(item)

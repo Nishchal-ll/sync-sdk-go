@@ -1,4 +1,4 @@
-package conflict_test
+﻿package conflict_test
 
 import (
 	"context"
@@ -70,8 +70,8 @@ func TestVectorClockIncrementAndMerge(t *testing.T) {
 func TestConflictResolverCallback(t *testing.T) {
 	ctx := context.Background()
 
-	localEnv := event.NewEnvelope("ztt", "t1", "node1", "product", "P1", "updated", []byte(`{"name":"Local"}`))
-	incomingEnv := event.NewEnvelope("ztt", "t1", "node2", "product", "P1", "updated", []byte(`{"name":"Remote"}`))
+	localEnv := event.NewEnvelope("ztt", "node1", "product", "P1", "updated", []byte(`{"name":"Local"}`))
+	incomingEnv := event.NewEnvelope("ztt", "node2", "product", "P1", "updated", []byte(`{"name":"Remote"}`))
 
 	resolver := conflict.ConflictResolverFunc(func(ctx context.Context, local, incoming event.EventEnvelope) (conflict.Resolution, *event.EventEnvelope, error) {
 		mergedPayload := []byte(`{"name":"Merged (Local+Remote)"}`)

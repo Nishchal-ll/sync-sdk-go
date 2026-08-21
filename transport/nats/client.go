@@ -1,4 +1,4 @@
-package nats
+﻿package nats
 
 import (
 	"fmt"
@@ -81,7 +81,7 @@ func (c *Client) Close() {
 	}
 }
 
-// BuildSubject produces a canonical subject string: <app>.<tenant>.<source>.<entity>.<action>
-func BuildSubject(appID, tenantID, source, entity, action string) string {
-	return fmt.Sprintf("%s.%s.%s.%s.%s", appID, tenantID, source, entity, action)
+// BuildSubject produces a canonical subject string: <app>.<source>.<entity>.<action>
+func BuildSubject(appID, source, entity, action string) string {
+	return fmt.Sprintf("%s.%s.%s.%s", appID, source, entity, action)
 }
