@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Sync SDK (`sync-sdk-go`)
 
 > **The Golden Rule:** The Universal Sync Platform is not a data replication framework that understands application data. It is an event synchronization infrastructure that transports opaque application events reliably between authorized nodes. Business applications remain responsible for interpreting events, maintaining domain state, and resolving domain-specific conflicts.
@@ -97,3 +98,6 @@ sync-sdk-go/
 ```bash
 go test -v ./...
 ```
+=======
+# sync-sdk-go
+>>>>>>> a09ec8fc7195d317d7661b4a5e2cdf7825b8b1c8
