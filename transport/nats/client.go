@@ -2,6 +2,7 @@
 
 import (
 	"fmt"
+	"crypto/tls"
 	"time"
 
 	"github.com/nats-io/nats.go"
@@ -14,6 +15,7 @@ type Config struct {
 	ConnectTimeout time.Duration // Connection timeout (default: 10s)
 	MaxReconnects  int           // Max reconnection attempts (default: -1 unlimited)
 	ReconnectWait  time.Duration // Time to wait between reconnect attempts (default: 2s)
+	InsecureSkipVerify bool          // Skip TLS verification (useful for self-signed certificates or dev WSS)
 }
 
 // Client manages NATS connection and JetStream context.
@@ -41,6 +43,10 @@ func NewClient(cfg Config) (*Client, error) {
 		nats.Timeout(cfg.ConnectTimeout),
 		nats.ReconnectWait(cfg.ReconnectWait),
 		nats.MaxReconnects(cfg.MaxReconnects),
+	}
+
+	if cfg.InsecureSkipVerify {
+		opts = append(opts, nats.Secure(&tls.Config{InsecureSkipVerify: true}))
 	}
 
 	if cfg.UserCredsFile != "" {

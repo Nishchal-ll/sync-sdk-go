@@ -20,6 +20,7 @@ type Config struct {
 	NATSURL        string        // NATS Server URL (e.g., "nats://localhost:4222" or "wss://sync.domain.com")
 	UserCredsFile  string        // Path to NATS credentials file for NKEY auth
 	ConnectTimeout time.Duration // Connection timeout duration
+	InsecureSkipVerify bool          // Skip TLS verification for dev/WSS
 }
 
 // Validate checks that mandatory client configuration fields are set.
@@ -42,5 +43,6 @@ func (c Config) NATSConfig() nats.Config {
 		URL:            c.NATSURL,
 		UserCredsFile:  c.UserCredsFile,
 		ConnectTimeout: c.ConnectTimeout,
+		InsecureSkipVerify: c.InsecureSkipVerify,
 	}
 }
