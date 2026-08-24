@@ -76,3 +76,26 @@ func (e EventEnvelope) Validate() error {
 func (e EventEnvelope) Subject() string {
 	return fmt.Sprintf("%s.%s.%s.%s", e.AppID, e.NodeID, e.Entity, e.Action)
 }
+
+
+// UnmarshalJSON implements custom JSON unmarshaling to seamlessly handle integer or string IDs/EntityIDs.
+func (e *EventEnvelope) UnmarshalJSON(data []byte) error {
+	type Alias EventEnvelope
+	aux := &struct {
+		IDFlex       interface{} `json:"id"`
+		EntityIDFlex interface{} `json:"entity_id"`
+		*Alias
+	}{
+		Alias: (*Alias)(e),
+	}
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+	if aux.IDFlex != nil {
+		e.ID = fmt.Sprintf("%v", aux.IDFlex)
+	}
+	if aux.EntityIDFlex != nil {
+		e.EntityID = fmt.Sprintf("%v", aux.EntityIDFlex)
+	}
+	return nil
+}

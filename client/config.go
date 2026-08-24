@@ -15,6 +15,7 @@ var (
 // Config holds initialization options for the Sync SDK client.
 type Config struct {
 	AppID          string        // Application Identifier (e.g., "ztt")
+	TenantID       string        // Tenant Identifier (e.g., "tenant_101")
 	NodeID         string        // Unique Node Identifier (e.g., "01cc92a6-...", "cloud")
 	NATSURL        string        // NATS Server URL (e.g., "nats://localhost:4222" or "wss://sync.domain.com")
 	UserCredsFile  string        // Path to NATS credentials file for NKEY auth
@@ -25,6 +26,9 @@ type Config struct {
 func (c Config) Validate() error {
 	if c.AppID == "" {
 		return ErrMissingConfigAppID
+	}
+	if c.TenantID == "" {
+		return errors.New("client: config missing TenantID")
 	}
 	if c.NodeID == "" {
 		return ErrMissingConfigNodeID
