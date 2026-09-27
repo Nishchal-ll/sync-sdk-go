@@ -1,5 +1,6 @@
-<<<<<<< HEAD
 # Sync SDK (`sync-sdk-go`)
+
+> *Production Core Library: Designed and maintained as an edge-to-cloud transactional event synchronization library utilized across offline-first and distributed site systems at BIT Iconic.*
 
 > **The Golden Rule:** The Universal Sync Platform is not a data replication framework that understands application data. It is an event synchronization infrastructure that transports opaque application events reliably between authorized nodes. Business applications remain responsible for interpreting events, maintaining domain state, and resolving domain-specific conflicts.
 
@@ -8,6 +9,36 @@
 ---
 
 ## Key Features
+
+```mermaid
+flowchart LR
+    subgraph Edge ["Edge Node (POS / ERP / Site)"]
+        direction TB
+        AppLocal["Local Application & Database"]
+        Outbox["Transactional Outbox Ledger"]
+        Inbox["Transactional Inbox Ledger"]
+        AppLocal -->|Atomic Tx Commit| Outbox
+        Inbox -->|Atomic Tx Apply| AppLocal
+    end
+
+    subgraph Transport ["NATS JetStream Cluster"]
+        direction TB
+        JS_Stream["Durable Event Stream (Multi-Tenant)"]
+        Deduplication["Deduplication Engine (Nats-Msg-Id)"]
+        JS_Stream <--> Deduplication
+    end
+
+    subgraph Cloud ["Cloud Core & Backends"]
+        direction TB
+        CloudApp["Cloud Domain Services"]
+        CloudStore["Authoritative Datastore / Analytics"]
+        CloudApp --> CloudStore
+    end
+
+    Outbox -->|"Publish Opaque Events (TCP / WSS)"| JS_Stream
+    JS_Stream -->|"Durable Pull Consumer"| Inbox
+    JS_Stream <-->|"Bi-directional Sync / Replay"| CloudApp
+```
 
 - **Zero Domain Knowledge**: Operates exclusively on opaque `EventEnvelope` JSON payloads. No business-entity coupled code.
 - **Transactional Atomicity**:
@@ -98,6 +129,3 @@ sync-sdk-go/
 ```bash
 go test -v ./...
 ```
-=======
-# sync-sdk-go
->>>>>>> a09ec8fc7195d317d7661b4a5e2cdf7825b8b1c8
