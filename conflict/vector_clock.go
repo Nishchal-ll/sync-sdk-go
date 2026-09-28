@@ -28,7 +28,6 @@ func Compare(clockA, clockB VectorClock) Relation {
 	greater := false
 	lesser := false
 
-	// Collect all keys from both clocks
 	allKeys := make(map[string]bool)
 	for k := range clockA {
 		allKeys[k] = true

@@ -84,7 +84,6 @@ func (c *Consumer) Start(ctx context.Context) error {
 
 	subOpts = append(subOpts, nats.Bind(c.cfg.StreamName, c.cfg.DurableName))
 
-	// Subscribe using durable pull consumer
 	sub, err := js.PullSubscribe(
 		c.cfg.FilterSubject,
 		c.cfg.DurableName,

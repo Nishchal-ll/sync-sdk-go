@@ -160,7 +160,6 @@ func CalculateBackoff(attempt int, base time.Duration) time.Duration {
 		return base
 	}
 	temp := float64(base) * float64(int64(1)<<uint(attempt))
-	// Add 20% jitter
 	jitter := temp * 0.2 * rand.Float64()
 	return time.Duration(temp + jitter)
 }
