@@ -54,14 +54,11 @@ func (p *Processor) ProcessMessage(ctx context.Context, rawData []byte) error {
 		return fmt.Errorf("inbox: invalid envelope payload: %w", err)
 	}
 
-	// 1. Self-Consumption Protection Filter
 	if env.NodeID == p.clientNodeID {
-		// Silently acknowledge self-published events
 		return nil
 	}
 
 	p.mu.RLock()
-	// Lookup handler by "entity.action" or fallback to "entity"
 	handlerKey := fmt.Sprintf("%s.%s", env.Entity, env.Action)
 	handler, exists := p.handlers[handlerKey]
 	if !exists {
@@ -74,29 +71,22 @@ func (p *Processor) ProcessMessage(ctx context.Context, rawData []byte) error {
 		return fmt.Errorf("inbox: no registered handler for entity key '%s'", handlerKey)
 	}
 
-	// 2. Transactional Atomicity Execution
 	return p.repo.ExecTx(ctx, func(tx Transaction) error {
-		// Check for duplicate message in permanent inbox ledger
 		alreadyProcessed, err := p.repo.Exists(ctx, tx, env.ID)
 		if err != nil {
 			return fmt.Errorf("inbox: failed to check message existence: %w", err)
 		}
 		if alreadyProcessed {
-			// Already committed — return nil so caller acknowledges NATS message
 			return nil
 		}
 
 		targetEnv := env
+		_ = resolver
 
-		// If a conflict resolver is registered for multi-writer state, apps can resolve divergence
-		_ = resolver // Resolver hook available for domain state comparison
-
-		// Execute business handler
 		if err := handler(ctx, tx, targetEnv); err != nil {
 			return fmt.Errorf("inbox: domain handler failed: %w", err)
 		}
 
-		// Save message ID to inbox ledger in the exact same transaction
 		if err := p.repo.Save(ctx, tx, targetEnv.ID, handlerKey); err != nil {
 			return fmt.Errorf("inbox: failed to save inbox record: %w", err)
 		}
